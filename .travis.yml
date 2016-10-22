@@ -3,3 +3,8 @@ language: ruby
 rvm:
   - 2.2.3
 before_install: gem install bundler -v 1.12.5
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database voltron_upload_test;' -U postgres
+  - cp config/database.yml.travis config/database.yml
