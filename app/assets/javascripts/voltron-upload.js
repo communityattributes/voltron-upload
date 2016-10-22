@@ -27,8 +27,6 @@ Voltron.addModule('Upload', function(){
 
       console.log(this);
 
-      console.log(Voltron.getModule('Upload').getModel(this), Voltron.getModule('Upload').getMethod(this));
-
       if(!input.closest('.fallback').length) input.wrap($('<div />', { class: 'fallback' }));
       if(!input.closest('.dropzone').length) input.closest('.fallback').wrap($('<div />', { class: 'dropzone' }));
 
@@ -52,10 +50,10 @@ Voltron.addModule('Upload', function(){
       // the model and add to the file upload box upon initialization
       $.each(input.data('files'), function(index, upload){
         //console.log(upload);
-        Voltron.getModule('Upload').getFileObject(upload, upload.name, function(fileObject, name){
+        Voltron.getModule('Upload').getFileObject(upload, upload.id, function(fileObject, id){
           dz.files.push(fileObject);
           dz.options.addedfile.call(dz, fileObject);
-          $(fileObject.previewElement).attr('data-id', name);
+          $(fileObject.previewElement).attr('data-id', id);
           dz._enqueueThumbnail(fileObject);
           dz.options.complete.call(dz, fileObject);
           dz._updateMaxFilesReachedClass();
@@ -65,6 +63,8 @@ Voltron.addModule('Upload', function(){
       dz.on('sending', Voltron.getModule('Upload').onBeforeSend);
       dz.on('success', Voltron.getModule('Upload').onSuccess);
       dz.on('removedfile', Voltron.getModule('Upload').onRemove);
+      dz.on('addedfile', Voltron.getModule('Upload').onAdd);
+      dz.on('error', Voltron.getModule('Upload').onError);
     },
 
     onBeforeSend: function(file, xhr, data){
@@ -86,6 +86,20 @@ Voltron.addModule('Upload', function(){
       var commitName = Voltron.getModule('Upload').getParamName(this.input, 'commit', true);
       $(this.form).find('input[name="' + commitName + '"][value="' + id + '"]').remove();
       $(this.form).prepend($('<input />', { type: 'hidden', name: Voltron.getModule('Upload').getParamName(this.input, 'remove', true), value: id }));
+    },
+
+    onAdd: function(file){
+      if(!this.input.multiple){
+        $(file.previewElement).closest('.dropzone').find('.dz-preview').each(function(){
+          if($(this).get(0) != $(file.previewElement).get(0)){
+            $(this).remove();
+          }
+        });
+      }
+    },
+
+    onError: function(file, response){
+      $(file.previewElement).find('.dz-error-message').text(response.messages.join('<br />'));
     },
 
     getFileBlob: function(url, cb){

@@ -1,6 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV['RAILS_ENV'] ||= 'test'
 
+require "voltron/upload/carrier_wave/uploader/base"
 require "simplecov"
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
@@ -46,6 +47,8 @@ RSpec.configure do |config|
 
   # Fixture file upload methods
   include ActionDispatch::TestProcess
+
+  config.fixture_path = File.expand_path("../fixtures", __FILE__)
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and

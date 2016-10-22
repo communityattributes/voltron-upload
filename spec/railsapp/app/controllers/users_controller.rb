@@ -35,7 +35,6 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    puts user_params.to_yaml
     if @user.update(user_params)
       redirect_to edit_user_path(@user), notice: 'User was successfully updated.'
     else

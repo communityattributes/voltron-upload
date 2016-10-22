@@ -18,12 +18,5 @@ module Voltron
       params
     end
 
-    def self.remove_temps(remove_files)
-      (remove_files || {}).map do |column,removes|
-        destroyed = where(uuid: removes).destroy_all
-        { "remove_#{column}".to_sym => removes - destroyed.map(&:uuid) }
-      end.reduce(Hash.new, :merge)
-    end
-
   end
 end

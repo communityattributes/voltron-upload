@@ -4,12 +4,12 @@ module Voltron
 
       attr_accessor :messages
 
-      def initialize(messages)
-        @messages = [messages].flatten
+      def initialize(*messages)
+        @messages = messages.flatten
       end
 
       def response
-        { success: false, messages: @messages }
+        { success: false, error: @messages }
       end
 
       def status

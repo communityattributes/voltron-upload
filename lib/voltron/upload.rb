@@ -15,7 +15,7 @@ module Voltron
       include ControllerMethods
 
       resource ||= controller_name.classify
-      @uploader = Voltron::Uploader.new(resource)
+      @uploader ||= Voltron::Uploader.new(resource)
 
       before_action :add_commit_params
 
@@ -27,7 +27,7 @@ module Voltron
 
       def upload
         begin
-          render json: uploader.process!(upload_params)
+          render json: uploader.process!(upload_params), status: :created
         rescue Voltron::Upload::InvalidError => e
           render json: e.response, status: e.status
         end

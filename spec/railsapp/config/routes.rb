@@ -2,7 +2,11 @@ Rails.application.routes.draw do
 
   upload_for :users
 
+  upload_for :tests
+
   resources :users
+
+  resources :tests
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

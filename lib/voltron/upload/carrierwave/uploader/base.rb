@@ -4,9 +4,10 @@ module Voltron
       module Uploader
         module Base
 
-          def to_upload_hash
+          def to_upload_hash(id)
             if present?
               {
+                id: id,
                 url: url,
                 status: :added,
                 accepted: true,

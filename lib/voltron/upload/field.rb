@@ -29,7 +29,7 @@ module Voltron
           options[:data] ||= {}
           options[:data][:name] = @method
           options[:data][:files] = files
-          options[:data][:commit] = commits
+          options[:data][:commit] = commits.keys
           options[:data][:upload] ||= polymorphic_path(@model.class, action: :upload)
         end
 
@@ -37,25 +37,26 @@ module Voltron
           @model.respond_to?("#{@method}_urls")
         end
 
-        def single?
-          @model.respond_to?("#{@method}_url")
-        end
-
         def files
-          if multiple?
-            @model.send(@method).map(&:to_upload_hash).compact
-          elsif single?
-            # Always return an array, makes the js simpler...
-            Array.wrap(@model.send(@method).try(:to_upload_hash)).compact
+          return [] if @model.send(@method).blank?
+          commit_files = commits.dup
+          Array.wrap(@model.send(@method)).map do |f|
+            if commit_files.values.include?(f.file.try(:filename))
+              id = commit_files.key(f.file.try(:filename))
+              commit_files.delete(id)
+            else
+              id = f.file.try(:filename)
+            end
+            f.to_upload_hash(id)
           end
         end
 
         def commits
-          Array.wrap(@model.send("commit_#{@method}")).map do |commit|
+          @commits ||= Array.wrap(@model.send("commit_#{@method}")).map do |commit|
             if temp = ::Voltron::Temp.find_by(uuid: commit)
-              temp.column == @method.to_s ? commit : nil
+              temp.column == @method.to_s ? { temp.uuid => temp.file.file.try(:filename) } : nil
             end
-          end.compact
+          end.compact.reduce(Hash.new, :merge)
         end
       end
     end

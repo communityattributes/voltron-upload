@@ -25,10 +25,6 @@ module Voltron
           ::Voltron::Temp.to_param_hash(commits)
         end
 
-        def removes
-          ::Voltron::Temp.remove_temps(@parameters["upload"]["remove"])
-        end
-
       end
     end
   end
