@@ -7,4 +7,4 @@ services:
   - postgresql
 before_script:
   - psql -c 'create database voltron_upload_test;' -U postgres
-  - cp config/database.yml.travis config/database.yml
+  - cp spec/railsapp/config/database.yml.travis spec/railsapp/config/database.yml
