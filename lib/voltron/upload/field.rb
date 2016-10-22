@@ -2,9 +2,13 @@ module Voltron
   module Upload
     module Field
 
-      def upload_field(method, **options)
-        field = UploadField.new(@object, method, options)
-        file_field method, field.options
+      def file_field(method, options={})
+        if Voltron.config.upload.enabled
+          field = UploadField.new(@object, method, options)
+          super method, field.options
+        else
+          super method, options
+        end
       end
 
       class UploadField

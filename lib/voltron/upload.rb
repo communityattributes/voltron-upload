@@ -1,4 +1,5 @@
 require "voltron"
+require "voltron/config/upload"
 require "voltron/upload/version"
 require "voltron/upload/routes"
 require "voltron/upload/error"
