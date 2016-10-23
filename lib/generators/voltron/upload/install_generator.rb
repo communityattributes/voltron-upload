@@ -39,6 +39,7 @@ module Voltron
   # every 1.day do
   #   runner "Voltron::Upload::Tasks.cleanup"
   # end
+  #
   # config.upload.keep_for = 30.days
 CONTENT
             end
