@@ -5,6 +5,8 @@ class CreateVoltronTemp < ActiveRecord::Migration
       t.string :file
       t.string :column
       t.boolean :multiple
+
+      t.timestamps null: false
     end
 
     add_index :voltron_temps, :uuid, unique: true

@@ -7,10 +7,11 @@ module Voltron
 
     class Upload
 
-      attr_accessor :enabled
+      attr_accessor :enabled, :keep_for
 
       def initialize
         @enabled ||= true
+        @keep_for ||= 30.days
       end
     end
   end

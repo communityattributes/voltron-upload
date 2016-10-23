@@ -3,7 +3,7 @@ module Voltron
     module Field
 
       def file_field(method, options={})
-        if Voltron.config.upload.enabled
+        if Voltron.config.upload.enabled && !options[:default_input]
           field = UploadField.new(@object, method, options)
           super method, field.options
         else

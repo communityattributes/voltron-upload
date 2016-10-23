@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161012064926) do
+ActiveRecord::Schema.define(version: 20161011181944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,22 +24,13 @@ ActiveRecord::Schema.define(version: 20161012064926) do
   end
 
   create_table "voltron_temps", force: :cascade do |t|
-    t.string  "uuid"
-    t.string  "file"
-    t.string  "column"
-    t.boolean "multiple"
-    t.index ["uuid"], name: "index_voltron_temps_on_uuid", unique: true, using: :btree
-  end
-
-  create_table "voltron_uploads", force: :cascade do |t|
     t.string   "uuid"
-    t.integer  "resource_id"
-    t.string   "resource_type"
-    t.string   "column"
     t.string   "file"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["uuid"], name: "index_voltron_uploads_on_uuid", unique: true, using: :btree
+    t.string   "column"
+    t.boolean  "multiple"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_voltron_temps_on_uuid", unique: true, using: :btree
   end
 
 end

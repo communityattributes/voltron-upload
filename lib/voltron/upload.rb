@@ -1,6 +1,7 @@
 require "voltron"
 require "voltron/config/upload"
 require "voltron/upload/version"
+require "voltron/upload/tasks"
 require "voltron/upload/routes"
 require "voltron/upload/error"
 require "voltron/upload/invalid_error"
@@ -15,7 +16,7 @@ module Voltron
     def uploadable(resource = nil)
       include ControllerMethods
 
-      resource ||= controller_name.classify
+      resource ||= controller_name
       @uploader ||= Voltron::Uploader.new(resource)
 
       before_action :add_commit_params
