@@ -1,4 +1,5 @@
 require "voltron"
+require "carrierwave"
 require "voltron/config/upload"
 require "voltron/upload/version"
 require "voltron/upload/tasks"
