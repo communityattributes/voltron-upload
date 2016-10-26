@@ -16,6 +16,7 @@ module Voltron
         ::ActionController::Base.send :extend, ::Voltron::Upload
         ::CarrierWave::Mount.send :prepend, ::Voltron::Upload::CarrierWave::Mount
         ::CarrierWave::Uploader::Base.send :include, ::Voltron::Upload::CarrierWave::Uploader::Base
+        puts "DEBUG"
       end
 
     end
