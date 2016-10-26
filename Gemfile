@@ -1,9 +1,7 @@
 source 'https://rubygems.org'
 source 'http://gem.minow.io'
 
-gem 'carrierwave', github: 'carrierwaveuploader/carrierwave'
-
-gem 'byebug'
+gem 'carrierwave', git: 'https://github.com/carrierwaveuploader/carrierwave.git', branch: 'master'
 
 # Specify your gem's dependencies in voltron-upload.gemspec
 gemspec
