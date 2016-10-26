@@ -5,15 +5,16 @@ module Voltron
 
     autoload :Field
 
-    autoload :Engine
-
     autoload :CarrierWave
+
+    autoload :Engine
 
     class Engine < Rails::Engine
 
       isolate_namespace Voltron
 
       initializer "voltron.upload.initialize" do
+        puts "DEBUG2"
         ::ActionController::Parameters.send :prepend, ::Voltron::Upload::ActionController::Parameters
         ::ActionDispatch::Routing::Mapper.send :include, ::Voltron::Upload::Routes
         ::ActionView::Helpers::FormBuilder.send :prepend, ::Voltron::Upload::Field
