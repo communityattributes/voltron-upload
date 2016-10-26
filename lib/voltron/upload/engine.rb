@@ -21,6 +21,11 @@ module Voltron
         ::ActionController::Base.send :extend, ::Voltron::Upload
         ::CarrierWave::Mount.send :prepend, ::Voltron::Upload::CarrierWave::Mount
         ::CarrierWave::Uploader::Base.send :include, ::Voltron::Upload::CarrierWave::Uploader::Base
+
+        ActiveSupport.on_load :active_record do
+          require 'voltron/upload/field'
+          ::ActionView::Helpers::FormBuilder.send :prepend, ::Voltron::Upload::Field
+        end
       end
 
     end
