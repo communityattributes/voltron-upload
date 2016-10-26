@@ -7,6 +7,8 @@ module Voltron
 
     autoload :Engine
 
+    autoload :CarrierWave
+
     class Engine < Rails::Engine
 
       isolate_namespace Voltron
