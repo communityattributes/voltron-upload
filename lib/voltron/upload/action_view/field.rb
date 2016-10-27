@@ -29,16 +29,11 @@ module Voltron
         end
 
         def prepare
-          options[:multiple] = multiple?
           options[:data] ||= {}
           options[:data][:name] = @method
           options[:data][:files] = files
           options[:data][:commit] = commits.keys
           options[:data][:upload] ||= polymorphic_path(@model.class, action: :upload)
-        end
-
-        def multiple?
-          @model.respond_to?("#{@method}_urls")
         end
 
         def files
