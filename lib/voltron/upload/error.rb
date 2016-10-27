@@ -13,7 +13,7 @@ module Voltron
       end
 
       def status
-        500
+        :not_acceptable
       end
     end
   end

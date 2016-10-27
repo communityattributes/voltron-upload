@@ -1,15 +1,14 @@
 require "voltron"
 require "carrierwave"
-require "voltron/config/upload"
 require "voltron/upload/version"
+require "voltron/config/upload"
 require "voltron/upload/tasks"
-require "voltron/upload/routes"
 require "voltron/upload/error"
-require "voltron/upload/invalid_error"
-require "voltron/upload/action_controller/parameters"
-require "voltron/upload/carrierwave/uploader/base"
-require "voltron/upload/carrierwave/mount"
 require "voltron/uploader"
+require "voltron/upload/carrierwave/uploader/base"
+require "voltron/upload/active_record/base"
+require "voltron/upload/action_dispatch/routes"
+require "voltron/upload/action_controller/parameters"
 
 module Voltron
   module Upload
@@ -31,7 +30,7 @@ module Voltron
       def upload
         begin
           render json: uploader.process!(upload_params), status: :created
-        rescue Voltron::Upload::InvalidError => e
+        rescue Voltron::Upload::Error => e
           render json: e.response, status: e.status
         end
       end

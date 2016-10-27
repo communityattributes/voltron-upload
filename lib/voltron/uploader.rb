@@ -48,7 +48,7 @@ module Voltron
 
       if instance.errors.any?
         # If any errors, return the messages
-        raise ::Voltron::Upload::InvalidError.new(instance.errors.full_messages)
+        raise ::Voltron::Upload::Error.new(instance.errors.full_messages)
       else
         response = { uploads: [] }
         # The upload is valid, try to create the "temp" uploads and respond

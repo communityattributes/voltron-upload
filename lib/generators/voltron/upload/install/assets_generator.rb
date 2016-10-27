@@ -1,7 +1,7 @@
 module Voltron
   module Upload
     module Generators
-      class InstallGenerator
+      module Install
         class AssetsGenerator < Rails::Generators::Base
 
           source_root File.expand_path("../../../../templates", __FILE__)

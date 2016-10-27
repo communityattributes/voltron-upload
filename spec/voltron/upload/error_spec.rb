@@ -2,8 +2,8 @@ require "rails_helper"
 
 describe Voltron::Upload::Error do
 
-  it "has a default status of 500" do
-    expect(subject.status).to eq(500)
+  it "has a default status of not_acceptable" do
+    expect(subject.status).to eq(:not_acceptable)
   end
 
 end
