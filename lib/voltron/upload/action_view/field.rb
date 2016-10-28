@@ -30,14 +30,13 @@ module Voltron
 
         def prepare
           options[:data] ||= {}
-          options[:data][:name] = @method
           options[:data][:files] = files
           options[:data][:commit] = commits.keys
           options[:data][:upload] ||= polymorphic_path(@model.class, action: :upload)
         end
 
         def files
-          return [] if @model.send(@method).blank?
+          return [] if @model.send(@method).blank? || options[:preserve] === false
           commit_files = commits.dup
           Array.wrap(@model.send(@method)).map do |f|
             if commit_files.values.include?(f.file.try(:filename))
@@ -47,7 +46,7 @@ module Voltron
               id = f.file.try(:filename)
             end
             f.to_upload_hash(id)
-          end
+          end.compact
         end
 
         def commits
