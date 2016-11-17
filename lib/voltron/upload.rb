@@ -19,9 +19,7 @@ module Voltron
       resource ||= controller_name
       @uploader ||= Voltron::Uploader.new(resource)
 
-      before_action :add_commit_params
-
-      before_action :add_permit_params
+      prepend_before_action :process_uploads
 
     end
 
@@ -35,12 +33,8 @@ module Voltron
         end
       end
 
-      def add_permit_params
-        params.uploader = uploader
-      end
-
-      def add_commit_params
-        params.add_commit_params_for(uploader)
+      def process_uploads
+        params.commit!(uploader) if params[uploader.resource_name.to_sym]
       end
 
       def uploader

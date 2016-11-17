@@ -15,11 +15,6 @@ describe TestsController, type: :controller do
     expect(subject.uploader).to be_a(Voltron::Uploader)
   end
 
-  it "adds the uploader to the params" do
-    get :index
-    expect(controller.params.uploader).to be_a(Voltron::Uploader)
-  end
-
   it "can upload an acceptable file" do
     post :upload, params: { user: { avatar: file1 } }
     expect(response).to have_http_status(:created)
@@ -38,7 +33,7 @@ describe TestsController, type: :controller do
     # Commit the file upload to the resource
     post :create, params: { user: { commit_avatar: json["uploads"].first } }
 
-    expect(controller.params[:user][:avatar]).to be_a(File)
+    expect(controller.params[:user][:avatar]).to be_a(ActionDispatch::Http::UploadedFile)
     expect(User.last.avatar.file.filename).to eq("1.jpg")
   end
 

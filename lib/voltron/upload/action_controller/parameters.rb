@@ -2,26 +2,18 @@ module Voltron
   module Upload
     module Parameters
 
-      cattr_accessor :uploader
+      def commit!(uploader)
+        # Get all uploads that can be committed based on what uploaders we have mounted in the model
+        commits = uploader.committable_uploads(@parameters[uploader.resource_name])
 
-      def permit(*filters)
-        filters += uploader.allowed_params if uploader
+        # Compile a list of the commit parameters we'll extract data from, these keys will be deleted from the params hash
+        commit_keys = commits.keys.map { |c| "commit_#{c}" }
 
-        super *filters
-      end
+        # Merge in our files to commit
+        @parameters[uploader.resource_name] = @parameters[uploader.resource_name].merge(commits)
 
-      def add_commit_params_for(uploader)
-        @parameters[uploader.resource.name.singularize.underscore] ||= {}
-
-        uploader.columns.keys.each do |c|
-          if @parameters[uploader.resource.name.singularize.underscore]["commit_#{c}"]
-            @parameters[uploader.resource.name.singularize.underscore].merge!(commits_from(@parameters[uploader.resource.name.singularize.underscore]["commit_#{c}"]))
-          end
-        end
-      end
-
-      def commits_from(commits)
-        ::Voltron::Temp.to_param_hash(commits)
+        # Get rid of all the `commit_*` parameters, no longer needed
+        @parameters[uploader.resource_name].reject! { |k| commit_keys.include?(k) }
       end
 
     end

@@ -8,10 +8,9 @@ module Voltron
         column = args.first.to_sym
 
         class_eval do
-
           attr_accessor "commit_#{column}".to_sym
-
         end
+
       end
 
       def mount_uploaders(*args)
@@ -29,7 +28,7 @@ module Voltron
             # Merge any new uploads with the pre-existing uploads
             uploads = Array.wrap(self.send("#{column}_was")) | Array.wrap(self.send(column))
 
-            assign_attributes(column => uploads)
+            assign_attributes(column => uploads.compact)
           end
 
           before_validation do

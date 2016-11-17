@@ -10,7 +10,7 @@ describe Voltron::Temp do
   end
 
   it "can generate a param hash" do
-    params = subject.class.to_param_hash("abc", "def", "ghi")
+    params = subject.class.to_param_hash("user", "abc", "def", "ghi")
     expect(params).to have_key("avatar")
     expect(params).to have_key("images")
     expect(params["images"]).to be_a(Array)

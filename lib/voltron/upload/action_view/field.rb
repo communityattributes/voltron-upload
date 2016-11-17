@@ -7,6 +7,7 @@ module Voltron
           field = UploadField.new(@object, method, options)
           super method, field.options
         else
+          options.delete(:default_input)
           super method, options
         end
       end
