@@ -3,6 +3,10 @@ module Voltron
     module Parameters
 
       def commit!(uploader)
+        # Ensure params hash is set
+        @parameters ||= {}
+        @parameters[uploader.resource_name] ||= {}
+
         # Get all uploads that can be committed based on what uploaders we have mounted in the model
         commits = uploader.committable_uploads(@parameters[uploader.resource_name])
 
