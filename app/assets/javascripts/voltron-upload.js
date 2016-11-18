@@ -6,7 +6,7 @@ Dropzone.autoDiscover = false;
 Voltron.addModule('Upload', function(){
   return {
     initialize: function(){
-      $('[data-upload]:not(.uploader)').each(this.addUpload);
+      $('[data-upload]:not(.uploader):visible').each(this.addUpload);
     },
 
     getModel: function(input){

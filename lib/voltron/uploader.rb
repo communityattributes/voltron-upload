@@ -66,7 +66,7 @@ module Voltron
     #     #<ActionDispatch::Http::UploadedFile>
     #   ]
     # }
-    def committable_uploads(params)
+    def committable_uploads(params={})
       columns.map do |name,multiple|
         if params["commit_#{name}"]
           Voltron::Temp.to_param_hash resource_name, params["commit_#{name}"]
