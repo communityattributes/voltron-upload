@@ -9,7 +9,8 @@ module Voltron
 
     # A new instance of the model we'll be uploading files for
     # Used to test the validity of uploads
-    def instance
+    def instance(refresh=false)
+      @instance = nil if refresh
       @instance ||= resource.new
     end
 
@@ -24,6 +25,8 @@ module Voltron
     end
 
     def process!(params)
+      instance(true)
+
       # Create a new instance of the resource we're uploading for
       # Pass in the needed upload params and file(s)
       params.each do |k, v|
