@@ -26,7 +26,15 @@ module Voltron
     def process!(params)
       # Create a new instance of the resource we're uploading for
       # Pass in the needed upload params and file(s)
-      instance.assign_attributes(params)
+      params.each do |k, v|
+        if v.is_a?(Array)
+          v.each do |f|
+            instance.send(k) << f
+          end
+        else
+          instance.send("#{k}=", v)
+        end
+      end
 
       # Test the validity, get the errors if any
       instance.valid?
