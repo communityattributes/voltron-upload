@@ -10,7 +10,7 @@ describe Voltron::Upload::Field do
   let(:user_avatar) { FactoryGirl.create(:user, :with_avatar) }
   let(:user_images) { FactoryGirl.create(:user, :with_images) }
 
-  let(:template) { Template.new }
+  let(:template) { Template.new(File.expand_path('../../../app/views', __FILE__)) }
 
   let(:builder_user) { ActionView::Helpers::FormBuilder.new(:user, user, template, {}) }
   let(:builder_user_avatar) { ActionView::Helpers::FormBuilder.new(:user, user_avatar, template, {}) }
@@ -44,7 +44,15 @@ describe Voltron::Upload::Field do
   end
 
   it 'will include the preview template markup if defined preview matches a template' do
-    puts builder_user.file_field(:avatar, preview: :progress)
+    field = builder_user.file_field(:avatar, preview: :progress)
+    expect(field).to include('dz-preview')
+    expect(field).to include('dz-progress')
+    expect(field).to include('dz-error-message')
+  end
+
+  it 'will include a special class name corresponding to the preview template' do
+    field = builder_user.file_field(:avatar, preview: :progress)
+    expect(field).to include('class="dz-layout-progress"')
   end
 
 end

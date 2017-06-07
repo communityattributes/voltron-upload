@@ -52,15 +52,6 @@ RSpec.configure do |config|
   # Fixture file upload methods
   include ActionDispatch::TestProcess
 
-  #Capybara.javascript_driver = :webkit
-
-  #Capybara.raise_server_errors = false
-
-  #Capybara.configure do |config|  
-  #  config.default_max_wait_time = 10
-  #  config.default_driver = :selenium
-  #end
-
   config.fixture_path = File.expand_path('../fixtures', __FILE__)
 
   config.include FactoryGirl::Syntax::Methods
