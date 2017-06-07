@@ -4,22 +4,6 @@ module Voltron
 
       extend ActiveSupport::Concern
 
-      included do
-        include InstanceMethods
-
-        # Find empty cache directories and remove them
-        after_save do
-          path = Rails.root.join('public', ::CarrierWave::Uploader::Base.cache_dir, '**', '*')
-          Dir[path].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w[ . .. ]).empty? }.each { |d| Dir.rmdir d }
-        end
-      end
-
-      module InstanceMethods
-        def is_voltron_uploading?
-          voltron_uploading
-        end
-      end
-
       module ClassMethods
 
         def mount_uploader(*args)
@@ -28,8 +12,6 @@ module Voltron
           column = args.first.to_sym
 
           attr_accessor "#{column}_cache"
-
-          attr_accessor :voltron_uploading
 
           before_validation do
             uploader = self.class.uploaders[column]
@@ -49,8 +31,6 @@ module Voltron
           column = args.first.to_sym
 
           attr_accessor "#{column}_cache"
-
-          attr_accessor :voltron_uploading
 
           before_validation do
             uploader = self.class.uploaders[column]

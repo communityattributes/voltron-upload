@@ -18,10 +18,6 @@ module Voltron
     end
 
     def process!(params)
-      # Inform the model that we are uploading. Used to determine the value of +move_to_cache+
-      # in our override of CarrierWave::Uploader::Base
-      params.merge! voltron_uploading: true
-
       model = resource.new(params)
 
       # Test the validity, get the errors if any

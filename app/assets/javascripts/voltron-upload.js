@@ -75,6 +75,7 @@ Voltron.addModule('Upload', function(){
 
         // If set to preserve file uploads, iterate through each uploaded file associated with
         // the model and add to the file upload box upon initialization
+        // If not set to preserve, the data-files attribute will always be an empty array
         for(var i=0; i<files.length; i++){
           Voltron('Upload/getFileObject', files[i], files[i].id, function(fileObject, id){
             dz.files.push(fileObject);
@@ -164,6 +165,8 @@ Voltron.addModule('Upload', function(){
           this.getInput().data('upload', this);
 
           // Assign the hidden file input a unique id
+          // Not required outside the test environment, but may
+          // be useful for other reasons in case one needs to get at the hidden inputs
           $(_dz.hiddenFileInput).attr('id', this.getInput().attr('id') + '_input')
 
           this.addHiddenInputs();
@@ -184,14 +187,12 @@ Voltron.addModule('Upload', function(){
 
         // If single file upload dropzone, remove anything that may have been previously uploaded,
         // change any commit inputs to remove inputs, so the file will be deleted when submitted
-        if(!this.getInput().prop('multiple')){
+        if(!this.isMultiple()){
           $(file.previewElement).closest('.dropzone').find('.dz-preview').each($.proxy(function(index, el){
             var id = $(el).data('id');
 
-            if(id != $(file.previewElement).data('id')){
-              this.addRemoval(id);
-              $(el).remove();
-            }
+            if(id) this.addRemoval(id);
+            $(el).remove();
           }, this));
         }
       },
@@ -224,6 +225,7 @@ Voltron.addModule('Upload', function(){
 
       onError: function(file, response){
         $(file.previewElement).find('.dz-error-message').text(typeof response == 'string' ? response : response.error.join('<br />'));
+        Voltron.dispatch('upload:error', { file: file, response: response })
       }
     };
   };
@@ -234,7 +236,6 @@ Voltron.addModule('Upload', function(){
     },
 
     addUpload: function(){
-      console.log(this);
       var upload = new Upload(this);
       upload.initialize();
     },

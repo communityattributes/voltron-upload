@@ -42,17 +42,6 @@ module Voltron
             Rails.root.join('public', store_path(file.filename))
           end
 
-          # If we're uploading via voltron, just move the file around so it's quicker
-          # Possibly a bug, but CarrierWave seems to create duplicate cache files when
-          # ActiveRecord's +valid?+ method is called, or the model is instantiated
-          # This is my way of currently lessening the number of files that are created
-          def move_to_cache
-            multiple = model.respond_to?("#{mounted_as}_urls")
-            cache = model.send("#{mounted_as}_cache")
-            cache = multiple ? (JSON.parse(cache) rescue []) : cache
-            Voltron.config.upload.enabled && (model.is_voltron_uploading? || cache.present?) ? true : super
-          end
-
           private
 
             # Before we store the file for good, grab the offset number

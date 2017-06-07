@@ -22,19 +22,19 @@ Voltron.setup do |config|
   # Should be a hash of keys matching a preview partial name,
   # with a value hash containing any of the Dropzone configuration options
   # found at http://www.dropzonejs.com/#configuration-options
-  # config.upload.previews = {
-  #   vertical_tile: {
-  #     thumbnailWidth: 200,
-  #     thumbnailHeight: 175,
-  #     dictRemoveFile: 'Remove',
-  #     dictCancelUpload: 'Cancel'
-  #   },
-  # 
-  #   horizontal_tile: {
-  #     dictRemoveFile: 'Remove',
-  #     dictCancelUpload: 'Cancel'
-  #   }
-  # }
+  config.upload.previews = {
+    vertical_tile: {
+      thumbnailWidth: 200,
+      thumbnailHeight: 175,
+      dictRemoveFile: 'Remove',
+      dictCancelUpload: 'Cancel'
+    },
+  
+    horizontal_tile: {
+      dictRemoveFile: 'Remove',
+      dictCancelUpload: 'Cancel'
+    }
+  }
 
   # === Voltron Base Configuration ===
 
