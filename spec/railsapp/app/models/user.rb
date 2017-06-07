@@ -4,6 +4,8 @@ class User < ApplicationRecord
 
 	mount_uploaders :images, ImageUploader
 
+  serialize :images, JSON
+
 	validates_presence_of :name
 
 end

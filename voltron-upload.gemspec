@@ -22,7 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'voltron', '~> 0.2.5'
   spec.add_dependency 'carrierwave', '~> 1.0'
   spec.add_dependency 'sass-rails', '>= 5.0'
-  spec.add_dependency 'colorize'
 
   spec.add_development_dependency 'byebug'
   spec.add_development_dependency 'bundler', '~> 1.12'
@@ -30,6 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-rails', '~> 3.4'
   spec.add_development_dependency 'factory_girl_rails', '~> 4.0'
-  spec.add_development_dependency 'pg', '~> 0.19.0'
   spec.add_development_dependency 'jquery-rails', '~> 4'
+  spec.add_development_dependency 'sqlite3', '~> 1.2'
 end
