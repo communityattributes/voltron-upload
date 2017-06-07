@@ -43,4 +43,8 @@ describe Voltron::Upload::Field do
     expect(builder_user_images.file_field(:images)).to include("data-remove=\"[&quot;#{user_images.images.first.id}&quot;]\"")
   end
 
+  it 'will include the preview template markup if defined preview matches a template' do
+    puts builder_user.file_field(:avatar, preview: :progress)
+  end
+
 end
