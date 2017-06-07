@@ -52,11 +52,7 @@ RSpec.configure do |config|
   # Fixture file upload methods
   include ActionDispatch::TestProcess
 
-  Capybara.register_driver :selenium do |app|  
-    Capybara::Selenium::Driver.new(app, browser: :chrome)
-  end
-
-  Capybara.javascript_driver = :chrome
+  Capybara.javascript_driver = :webkit
 
   Capybara.raise_server_errors = false
 
