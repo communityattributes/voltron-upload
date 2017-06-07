@@ -7,11 +7,24 @@ module Voltron
 
     class Upload
 
-      attr_accessor :enabled, :keep_for
+      attr_accessor :enabled, :keep_for, :previews
 
       def initialize
         @enabled ||= true
         @keep_for ||= 30.days
+        @previews ||= {
+          vertical_tile: {
+            thumbnailWidth: 200,
+            thumbnailHeight: 175,
+            dictRemoveFile: 'Remove',
+            dictCancelUpload: 'Cancel'
+          },
+        
+          horizontal_tile: {
+            dictRemoveFile: 'Remove',
+            dictCancelUpload: 'Cancel'
+          }
+        }
       end
     end
   end

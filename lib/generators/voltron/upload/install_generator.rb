@@ -41,6 +41,24 @@ module Voltron
   # end
   #
   # config.upload.keep_for = 30.days
+
+  # Global defaults for Dropzone's with a defined preview template
+  # Should be a hash of keys matching a preview partial name,
+  # with a value hash containing any of the Dropzone configuration options
+  # found at http://www.dropzonejs.com/#configuration-options
+  # config.upload.previews = {
+  #   vertical_tile: {
+  #     thumbnailWidth: 200,
+  #     thumbnailHeight: 175,
+  #     dictRemoveFile: 'Remove',
+  #     dictCancelUpload: 'Cancel'
+  #   },
+  # 
+  #   horizontal_tile: {
+  #     dictRemoveFile: 'Remove',
+  #     dictCancelUpload: 'Cancel'
+  #   }
+  # }
 CONTENT
             end
           end

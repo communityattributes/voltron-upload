@@ -15,22 +15,23 @@ ActiveRecord::Schema.define(version: 20161011181944) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "users", force: :cascade do |t|
-    t.string   "name"
-    t.string   "avatar"
-    t.json     "images"
+  create_table "users", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.string "avatar"
+    t.json "images"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "voltron_temps", force: :cascade do |t|
-    t.string   "uuid"
-    t.string   "file"
-    t.string   "column"
-    t.boolean  "multiple"
+  create_table "voltron_temps", id: :serial, force: :cascade do |t|
+    t.bigint "hash_id"
+    t.string "file"
+    t.string "column"
+    t.string "name"
+    t.boolean "multiple"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_voltron_temps_on_uuid", unique: true, using: :btree
+    t.index ["hash_id"], name: "index_voltron_temps_on_hash_id", unique: true
   end
 
 end

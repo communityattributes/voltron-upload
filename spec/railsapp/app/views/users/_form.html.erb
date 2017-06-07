@@ -18,12 +18,12 @@
 
   <div class="field">
     <%= f.label :avatar %>
-    <%= f.file_field :avatar %>
+    <%= f.file_field :avatar, preview: :horizontal_tile %>
   </div>
 
   <div class="field">
     <%= f.label :images %>
-    <%= f.file_field :images, multiple: true %>
+    <%= f.file_field :images, multiple: true, preview: :vertical_tile, options: { dictRemoveFile: 'Remove', dictCancelUpload: 'Cancel' } %>
   </div>
 
   <div class="actions">

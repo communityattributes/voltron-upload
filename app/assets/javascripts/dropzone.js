@@ -271,6 +271,8 @@
             file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>");
             file.previewElement.appendChild(file._removeLink);
           }
+
+          file._removeLink = file._removeLink || file.previewElement.querySelector('.dz-remove');
           removeFileEvent = (function(_this) {
             return function(e) {
               e.preventDefault();

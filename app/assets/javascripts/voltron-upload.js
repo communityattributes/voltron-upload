@@ -4,139 +4,245 @@
 Dropzone.autoDiscover = false;
 
 Voltron.addModule('Upload', function(){
+
+  var _dz = null,
+      _form = null;
+
+  var Upload = function(element){
+
+    return {
+      initialize: function(){
+        _form = this.getInput().closest('form');
+        this.createMarkup().createDropzone();
+      },
+
+      getInput: function(){
+        return $(element);
+      },
+
+      getForm: function(){
+        return _form;
+      },
+
+      isMultiple: function(){
+        return this.getInput().prop('multiple');
+      },
+
+      getModel: function(){
+        return this.getInput().attr('name').match(/^[A-Z_0-9]+/i)[0];
+      },
+
+      getMethod: function(){
+        return this.getInput().attr('name').match(/^[A-Z_0-9]+\[([A-Z_0-9]+)\]/i)[1];
+      },
+
+      getParamName: function(name){
+        return this.getModel() + '[' + name + '_' + this.getMethod() + ']' + (this.isMultiple() ? '[]' : '');
+      },
+
+      getDropzone: function(){
+        return _dz;
+      },
+
+      getRemovals: function(){
+        return this.getInput().data('remove') || [];
+      },
+
+      getFiles: function(){
+        return this.getInput().data('files') || [];
+      },
+
+      getOptions: function(){
+        return $.extend(this.getInput().data('options'), {
+          url: this.getInput().data('upload'),
+          paramName: this.getInput().attr('name'),
+          parallelUploads: 1, // WARNING: Changing this can yield unexpected results
+        });
+      },
+
+      addHiddenInputs: function(){
+        var removes = this.getRemovals();
+
+        for(var i=0; i<removes.length; i++){
+          this.addRemoval(removes[i]);
+        }
+      },
+
+      addExistingFiles: function(){
+        var dz = this.getDropzone(),
+            files = this.getFiles(),
+            caches = this.getCacheIds();
+
+        // If set to preserve file uploads, iterate through each uploaded file associated with
+        // the model and add to the file upload box upon initialization
+        for(var i=0; i<files.length; i++){
+          Voltron('Upload/getFileObject', files[i], files[i].id, function(fileObject, id){
+            dz.files.push(fileObject);
+            dz.options.addedfile.call(dz, fileObject);
+            $(fileObject.previewElement).attr('data-id', id);
+            $(fileObject.previewElement).addClass('dz-success');
+            dz._enqueueThumbnail(fileObject);
+            dz.options.complete.call(dz, fileObject);
+            dz._updateMaxFilesReachedClass();
+          });
+        }
+
+        for(var i=0; i<caches.length; i++){
+          this.addCache(caches[i]);
+        }
+      },
+
+      addRemoval: function(id){
+        var cache = this.getCache();
+        var index = cache.indexOf(id);
+
+        // If the id of the file we want to remove is in the cache input array, remove it
+        if(index > -1){
+          cache.splice(index, 1);
+          if(this.isMultiple()){
+            this.getCacheInput().val(JSON.stringify(cache));
+          }else{
+            this.getCacheInput().val('');
+          }
+        }
+
+        // Add the removal input field with the given id
+        this.getForm().prepend($('<input />', { type: 'hidden', class: 'input-' + id.split('/')[0], name: this.getParamName('remove'), value: id }));
+      },
+
+      addCache: function(id){
+        if(!/^(-)?[\d]+\-[\d]+(\-[\d]{4})?\-[\d]{4}/.test(id)) return;
+
+        if(this.isMultiple()){
+          var cache = this.getCache();
+          cache.push(id);
+          this.getCacheInput().val(JSON.stringify(cache.uniq()));
+        }else{
+          this.getCacheInput().val(id);
+        }
+      },
+
+      getCache: function(){
+        try
+        {
+          if(this.isMultiple()){
+            return $.parseJSON(this.getCacheInput().val()) || [];
+          }else{
+            return [this.getCacheInput().val()];
+          }
+        }catch(e){
+          return [];
+        }
+      },
+
+      getCacheIds: function(){
+        return this.getInput().data('cache');
+      },
+
+      getCacheInput: function(){
+        var paramName = [this.getModel(), this.getMethod(), 'cache'].join('_');
+
+        if(!this.getForm().find('#' + paramName).length){
+          this.getForm().prepend($('<input />', { type: 'hidden', name: this.getModel() + '[' + this.getMethod() + '_cache]', id: paramName, value: (this.isMultiple() ? '[]' : '') }));
+        }
+        return this.getForm().find('#' + paramName);
+      },
+
+      createMarkup: function(){
+        if(!this.getInput().closest('.fallback').length) this.getInput().wrap($('<div />', { class: 'fallback' }));
+        if(!this.getInput().closest('.dropzone').length) this.getInput().closest('.fallback').wrap($('<div />', { class: 'dropzone' }));
+        return this;
+      },
+
+      createDropzone: function(){
+        _dz = new Dropzone(this.getInput().closest('.dropzone').addClass(this.getInput().get(0).className).get(0), this.getOptions());
+
+        // If the dropzone became a fallback upload input, dz will be a DOM element, not an instance of Dropzone
+        if(_dz instanceof Dropzone){
+          // Add the dropzone object to the file input, so it's easily accessible
+          this.getInput().data('dropzone', _dz);
+          this.getInput().data('upload', this);
+
+          // Assign the hidden file input a unique id
+          $(_dz.hiddenFileInput).attr('id', this.getInput().attr('id') + '_input')
+
+          this.addHiddenInputs();
+          this.addExistingFiles();
+
+          _dz.on('sending', $.proxy(this.onBeforeSend, this));
+          _dz.on('success', $.proxy(this.onSuccess, this));
+          _dz.on('removedfile', $.proxy(this.onRemove, this));
+          _dz.on('error', $.proxy(this.onError, this));
+        }
+      },
+
+      // Add the authenticity token to the request
+      onBeforeSend: function(file, xhr, data){
+        data.append('authenticity_token', Voltron.getAuthToken());
+
+        Voltron.dispatch('upload:sending', { form: this.getForm(), file: file, xhr: xhr, data: data });
+
+        // If single file upload dropzone, remove anything that may have been previously uploaded,
+        // change any commit inputs to remove inputs, so the file will be deleted when submitted
+        if(!this.getInput().prop('multiple')){
+          $(file.previewElement).closest('.dropzone').find('.dz-preview').each($.proxy(function(index, el){
+            var id = $(el).data('id');
+
+            if(id != $(file.previewElement).data('id')){
+              this.addRemoval(id);
+              $(el).remove();
+            }
+          }, this));
+        }
+      },
+
+      // Once a file is uploaded, add a hidden input that flags the file to be committed once the form is submitted
+      onSuccess: function(file, data){
+        for(var i=0; i<data.uploads.length; i++){
+          $(file.previewElement).attr('data-id', data.uploads[i].id);
+          this.addCache(data.uploads[i].id);
+        }
+
+        // Dispatch upload complete event. This can be picked up by other modules to perform additional actions
+        // i.e. - The Voltron Crop module will observe this to set the crop image once uploaded
+        Voltron.dispatch('upload:complete', { file: file, data: data });
+      },
+
+      // When a file is removed, eliminate any hidden inputs that may have flagged the file for "committing"
+      // and add the hidden input that flags the file in question for removal
+      onRemove: function(file){
+        var f, id = $(file.previewElement).data('id');
+
+        // This line accounts for files that were uploaded, but removed before the form was submitted
+        // Once the form is submitted the file exists in the data-files attribute
+        this.addRemoval(id);
+
+        // Dispatch the upload removed event, can be observed in any other Voltron module
+        // by defining an onUploadRemoved event
+        Voltron.dispatch('upload:removed', { file: file, input: this.getInput() });
+      },
+
+      onError: function(file, response){
+        $(file.previewElement).find('.dz-error-message').text(typeof response == 'string' ? response : response.error.join('<br />'));
+      }
+    };
+  };
+
   return {
     initialize: function(){
-      $('[data-upload]:not(.uploader):visible').each(this.addUpload);
-    },
-
-    getModel: function(input){
-      return $(input).attr('name').match(/^[A-Z_0-9]+/i)[0];
-    },
-
-    getMethod: function(input){
-      return $(input).attr('name').match(/^[A-Z_0-9]+\[([A-Z_0-9]+)\]/i)[1];
-    },
-
-    getParamName: function(input, name){
-      return this.getModel(input) + '[' + name + '_' + this.getMethod(input) + ']' + (input.multiple ? '[]' : '');
+      $.each($('[data-upload]:visible'), this.addUpload);
     },
 
     addUpload: function(){
-      var input = $(this);
-      var form = $(this).closest('form');
-
-      // Ensure that if `initialize` is called again on this module that the dropzone is not applied twice
-      input.addClass('uploader');
-
-      // Wrap the input in the necessary markup if not done so already
-      if(!input.closest('.fallback').length) input.wrap($('<div />', { class: 'fallback' }));
-      if(!input.closest('.dropzone').length) input.closest('.fallback').wrap($('<div />', { class: 'dropzone' }));
-
-      var dz = new Dropzone(input.closest('.dropzone').get(0), {
-        url: input.data('upload'),
-        paramName: input.attr('name'),
-        parallelUploads: 1, // WARNING: Changing this can yield unexpected results.
-        addRemoveLinks: true,
-        previewTemplate: input.data('preview') ? $('<div />').append($(input.data('preview')).show()).html() : Dropzone.prototype.defaultOptions.previewTemplate
-      });
-
-      // Add the input and form elements to the dropzone instance so we can access it later
-      dz.input = input.get(0);
-      dz.form = form.get(0);
-      input.data('dropzone', dz);
-
-      $.each(input.data('commit'), function(index, id){
-        form.prepend($('<input />', { type: 'hidden', name: Voltron('Upload/getParamName', dz.input, 'commit'), value: id }));
-      });
-
-      // If set to preserve file uploads, iterate through each uploaded file associated with
-      // the model and add to the file upload box upon initialization
-      $.each(input.data('files').compact(), function(index, upload){
-        Voltron('Upload/getFileObject', upload, upload.id, function(fileObject, id){
-          dz.files.push(fileObject);
-          dz.options.addedfile.call(dz, fileObject);
-          $(fileObject.previewElement).attr('data-id', id);
-          dz._enqueueThumbnail(fileObject);
-          dz.options.complete.call(dz, fileObject);
-          dz._updateMaxFilesReachedClass();
-        });
-      });
-
-      dz.on('sending', Voltron.getModule('Upload').onBeforeSend);
-      dz.on('success', Voltron.getModule('Upload').onSuccess);
-      dz.on('removedfile', Voltron.getModule('Upload').onRemove);
-      dz.on('addedfile', Voltron.getModule('Upload').onAdd);
-      dz.on('error', Voltron.getModule('Upload').onError);
-    },
-
-    // Add the authenticity token to the request
-    onBeforeSend: function(file, xhr, data){
-      data.append('authenticity_token', Voltron.getAuthToken());
-
-      var form = this.form;
-      var commitName = Voltron('Upload/getParamName', this.input, 'commit');
-
-      // If single file upload dropzone, remove anything that may have been previously uploaded,
-      // change any commit inputs to remove inputs, so the file will be deleted when submitted
-      if(!this.input.multiple){
-        $(file.previewElement).closest('.dropzone').find('.dz-preview').each(function(){
-          var id = $(this).data('id');
-          var commitSelect = 'input[name="' + commitName + '"][value="' + id + '"]';
-
-          if(id != $(file.previewElement).data('id')){
-            $(form).find(commitSelect).remove();
-            $(this).remove();
-          }
-        });
-      }
-    },
-
-    // Once a file is uploaded, add a hidden input that flags the file to be committed once the form is submitted
-    onSuccess: function(file, data){
-      var form = this.form;
-      var input = this.input;
-
-      // Integration with voltron-crop gem. If a "cropper" object exists on the file input,
-      // ensure we update the image with that which was just uploaded
-      if($(this.input).data('cropper') && !$.isEmptyObject(data.uploads)){
-        var images = $.map(data.uploads, function(url, id){ return url; });
-        $(this.input).data('cropper').cropit('imageSrc', images.pop());
-      }
-
-      $.each(data.uploads, function(id, url){
-        $(file.previewElement).attr('data-id', id);
-        $(form).prepend($('<input />', { type: 'hidden', name: Voltron('Upload/getParamName', input, 'commit'), value: id }));
-        $(form).find('input[name="' + Voltron('Upload/getParamName', input, 'remove') + '"]').remove();
-      });
-    },
-
-    // When a file is removed, eliminate any hidden inputs that may have flagged the file for "committing"
-    // and add the hidden input that flags the file in question for removal
-    onRemove: function(file){
-      var id = $(file.previewElement).data('id');
-      var commitName = Voltron('Upload/getParamName', this.input, 'commit');
-      var removeName = Voltron('Upload/getParamName', this.input, 'remove');
-      $(this.form).find('input[name="' + commitName + '"][value="' + id + '"]').remove();
-      $(this.form).prepend($('<input />', { type: 'hidden', name: removeName, value: id }));
-    },
-
-    // If input does not allow multiple uploads, remove anything that currently exists in the dropzone
-    // Since we've just added a new file that will replace it
-    onAdd: function(file){
-      if(!this.input.multiple){
-        var form = this.form;
-        var commitName = Voltron('Upload/getParamName', this.input, 'commit');
-      }
-    },
-
-    onError: function(file, response){
-      $(file.previewElement).find('.dz-error-message').text(response.messages.join('<br />'));
+      console.log(this);
+      var upload = new Upload(this);
+      upload.initialize();
     },
 
     getFileBlob: function(url, cb){
       var xhr = new XMLHttpRequest();
-      xhr.open("GET", url);
-      xhr.responseType = "blob";
+      xhr.open('GET', url);
+      xhr.responseType = 'blob';
       xhr.addEventListener('load', function(){
         cb(xhr.response);
       });
@@ -146,7 +252,7 @@ Voltron.addModule('Upload', function(){
     blobToFile: function(blob, name){
       blob.lastModifiedDate = new Date();
       blob.name = name;
-      blob.status = "added";
+      blob.status = 'added';
       blob.accepted = true;
       return blob;
     },
