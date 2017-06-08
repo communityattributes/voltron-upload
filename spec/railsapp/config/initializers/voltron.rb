@@ -6,18 +6,6 @@ Voltron.setup do |config|
   # If false, simply returns what file_field would return normally
   # config.upload.enabled = true
 
-  # How long temporarily uploaded files should remain on the server and in the voltron_temp db table
-  # This value should be long enough to give any user filling out a form a reasonable amount of time to come
-  # back and submit it. In other words, don't make it 5 minutes, or the files the user uploads will not exist
-  # when they get around to clicking the "submit" button
-  # Keep in mind that all of the above applies only if you add the following to your schedule.rb file for whenever
-  #
-  # every 1.day do
-  #   runner "Voltron::Upload::Tasks.cleanup"
-  # end
-  #
-  # config.upload.keep_for = 30.days
-
   # Global defaults for Dropzone's with a defined preview template
   # Should be a hash of keys matching a preview partial name,
   # with a value hash containing any of the Dropzone configuration options

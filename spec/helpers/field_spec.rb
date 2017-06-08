@@ -22,15 +22,14 @@ describe Voltron::Upload::Field do
     expect(field).to match(/data\-cache="\[\]"/)
     expect(field).to match(/data\-remove="\[\]"/)
     expect(field).to match(/data\-options/)
-    expect(field).to match(/data\-upload/)
   end
 
   it 'generates default file input markup if default_input' do
-    expect(builder_user.file_field(:avatar, default_input: true)).to eq('<input type="file" name="user[avatar]" id="user_avatar" />')
+    expect(builder_user.file_field(:avatar, default: true)).to eq('<input type="file" name="user[avatar]" id="user_avatar" />')
   end
 
   it 'uses the provided markup as the preview markup' do
-    expect(builder_user.file_field(:avatar, preview: '<div class="special-container"></div>')).to match(/data\-options="\{&quot;previewTemplate&quot;:&quot;\\u003cdiv class=\\&quot;special\-container\\&quot;\\u003e\\u003c\/div\\u003e&quot;\}"/)
+    expect(builder_user.file_field(:avatar, preview: '<div class="special-container"></div>')).to include('data-options="{&quot;previewTemplate&quot;:&quot;\u003cdiv class=\&quot;special-container\&quot;\u003e\u003c/div\u003e&quot;,&quot;paramName&quot;:&quot;user[avatar]&quot;,&quot;url&quot;:&quot;/users/upload&quot;}"')
   end
 
   it 'will not include files flagged for removal' do

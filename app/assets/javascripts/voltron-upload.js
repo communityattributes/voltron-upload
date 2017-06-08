@@ -53,11 +53,7 @@ Voltron.addModule('Upload', function(){
       },
 
       getOptions: function(){
-        return $.extend(this.getInput().data('options'), {
-          url: this.getInput().data('upload'),
-          paramName: this.getInput().attr('name'),
-          parallelUploads: 1, // WARNING: Changing this can yield unexpected results
-        });
+        return this.getInput().data('options');
       },
 
       addHiddenInputs: function(){
@@ -167,7 +163,7 @@ Voltron.addModule('Upload', function(){
           // Assign the hidden file input a unique id
           // Not required outside the test environment, but may
           // be useful for other reasons in case one needs to get at the hidden inputs
-          $(_dz.hiddenFileInput).attr('id', this.getInput().attr('id') + '_input')
+          $(_dz.hiddenFileInput).attr('id', this.getInput().attr('id') + '_input');
 
           this.addHiddenInputs();
           this.addExistingFiles();
@@ -176,6 +172,7 @@ Voltron.addModule('Upload', function(){
           _dz.on('success', $.proxy(this.onSuccess, this));
           _dz.on('removedfile', $.proxy(this.onRemove, this));
           _dz.on('error', $.proxy(this.onError, this));
+          Voltron.dispatch('upload:initialized', { upload: this, dropzone: _dz, element: this.getInput().get(0) });
         }
       },
 
@@ -183,7 +180,7 @@ Voltron.addModule('Upload', function(){
       onBeforeSend: function(file, xhr, data){
         data.append('authenticity_token', Voltron.getAuthToken());
 
-        Voltron.dispatch('upload:sending', { form: this.getForm(), file: file, xhr: xhr, data: data });
+        Voltron.dispatch('upload:sending', { upload: this, form: this.getForm().get(0), file: file, xhr: xhr, data: data, element: this.getInput().get(0) });
 
         // If single file upload dropzone, remove anything that may have been previously uploaded,
         // change any commit inputs to remove inputs, so the file will be deleted when submitted
@@ -206,7 +203,7 @@ Voltron.addModule('Upload', function(){
 
         // Dispatch upload complete event. This can be picked up by other modules to perform additional actions
         // i.e. - The Voltron Crop module will observe this to set the crop image once uploaded
-        Voltron.dispatch('upload:complete', { file: file, data: data });
+        Voltron.dispatch('upload:complete', { upload: this, file: file, data: data, element: this.getInput().get(0) });
       },
 
       // When a file is removed, eliminate any hidden inputs that may have flagged the file for "committing"
@@ -220,19 +217,19 @@ Voltron.addModule('Upload', function(){
 
         // Dispatch the upload removed event, can be observed in any other Voltron module
         // by defining an onUploadRemoved event
-        Voltron.dispatch('upload:removed', { file: file, input: this.getInput() });
+        Voltron.dispatch('upload:removed', { upload: this, file: file, element: this.getInput().get(0) });
       },
 
-      onError: function(file, response){
-        $(file.previewElement).find('.dz-error-message').text(typeof response == 'string' ? response : response.error.join('<br />'));
-        Voltron.dispatch('upload:error', { file: file, response: response })
+      onError: function(file, data){
+        $(file.previewElement).find('.dz-error-message').text(typeof data == 'string' ? data : data.error.join('<br />'));
+        Voltron.dispatch('upload:error', { upload: this, file: file, data: [data].flatten(), element: this.getInput().get(0) })
       }
     };
   };
 
   return {
     initialize: function(){
-      $.each($('[data-upload]:visible'), this.addUpload);
+      $.each($('input[type="file"]:visible'), this.addUpload);
     },
 
     addUpload: function(){

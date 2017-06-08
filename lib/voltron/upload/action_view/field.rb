@@ -3,14 +3,14 @@ module Voltron
     module Field
 
       def file_field(method, options={})
-        if Voltron.config.upload.enabled && !options[:default_input]
+        if Voltron.config.upload.enabled && !options[:default]
           template = instance_variable_get('@template')
           field = UploadField.new(@object, method, template, options)
 
           # +merge+ is because options is a hash with_indifferent_access, and will therefore have an 'object' attribute when converted to html
           super method, {}.merge(field.options)
         else
-          options.delete(:default_input)
+          options.delete(:default)
           super method, options
         end
       end
@@ -39,15 +39,18 @@ module Voltron
           add_preview_class if has_preview_template?
 
           options[:data].merge!({ files: files, cache: caches, remove: removals, options: preview_options })
-          options[:data][:upload] ||= polymorphic_path(@model.class, action: :upload)
         end
 
         def preview_options
           previews = Voltron.config.upload.previews || {}
           opts = previews.with_indifferent_access.try(:[], preview_name) || {}
-          opts.deep_merge!(options.delete(:options) || {})
-          opts.deep_merge!(options[:data][:options] || {})
-          opts.deep_merge!(previewTemplate: preview_markup)
+          opts.merge!({
+            preview_template: preview_markup,
+            param_name: input_name,
+            url: polymorphic_path(@model.class, action: :upload)
+          })
+          opts.merge!(options.delete(:options) || {})
+          opts.map { |k,v| { k.to_s.camelize(:lower) => v } }.reduce(Hash.new, :merge).compact
         end
 
         def preview_markup
@@ -66,7 +69,7 @@ module Voltron
         end
 
         def preview
-          @preview ||= (options.delete(:preview) || options[:data][:preview]).to_s
+          @preview ||= options.delete(:preview).to_s
         end
 
         def has_preview_template?
@@ -84,6 +87,10 @@ module Voltron
           classes = options[:class].split(/\s+/)
           classes << "dz-layout-#{preview_name}"
           options[:class] = classes.join(' ')
+        end
+
+        def input_name
+          ActionView::Helpers::Tags::Base.new(ActiveModel::Naming.param_key(@model), @method, nil).send(:tag_name) + (multiple? ? '[]' : '')
         end
 
         def multiple?
