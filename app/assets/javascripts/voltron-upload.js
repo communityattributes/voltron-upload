@@ -45,15 +45,15 @@ Voltron.addModule('Upload', function(){
       },
 
       getRemovals: function(){
-        return this.getInput().data('remove') || [];
+        return this.getInput().data('upload-remove') || [];
       },
 
       getFiles: function(){
-        return this.getInput().data('files') || [];
+        return this.getInput().data('upload-files') || [];
       },
 
       getOptions: function(){
-        return this.getInput().data('options');
+        return this.getInput().data('upload-options');
       },
 
       addHiddenInputs: function(){
@@ -133,7 +133,7 @@ Voltron.addModule('Upload', function(){
       },
 
       getCacheIds: function(){
-        return this.getInput().data('cache');
+        return this.getInput().data('upload-cache');
       },
 
       getCacheInput: function(){

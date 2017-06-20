@@ -38,7 +38,12 @@ module Voltron
 
           add_preview_class if has_preview_template?
 
-          options[:data].merge!({ files: files, cache: caches, remove: removals, options: preview_options })
+          options[:data].merge!({
+            upload_files: files,
+            upload_cache: caches,
+            upload_remove: removals,
+            upload_options: preview_options
+          })
         end
 
         def preview_options
