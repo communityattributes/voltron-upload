@@ -2,13 +2,16 @@ module Voltron
   module Upload
     module Field
 
+      include ActionView::Helpers::TagHelper
+
       def file_field(method, options={})
         if Voltron.config.upload.enabled && !options[:default]
           template = instance_variable_get('@template')
           field = UploadField.new(@object, method, template, options)
 
           # +merge+ is because options is a hash with_indifferent_access, and will therefore have an 'object' attribute when converted to html
-          super method, {}.merge(field.options)
+          #super method, {}.merge(field.options)
+          content_tag 'v-upload', nil, field.options
         else
           options.delete(:default)
           super method, options
@@ -34,16 +37,27 @@ module Voltron
         end
 
         def prepare
-          options[:data] ||= {}
+          #add_preview_class if has_preview_template?
 
-          add_preview_class if has_preview_template?
-
-          options[:data].merge!({
-            upload_files: files,
-            upload_cache: caches,
-            upload_remove: removals,
-            upload_options: preview_options
+          options.merge!({
+            ':multiple'   => multiple?,
+            ':files'      => files.to_json,
+            ':cached'     => caches.to_json,
+            ':removed'    => removals.to_json,
+            ':options'    => preview_options.to_json,
+            'accept'      => accept,
+            'preview'     => preview_name,
+            'param'       => input_name,
+            'url'         => polymorphic_path(@model.class, action: :upload)
           })
+
+          #options[:data] ||= {}
+          #options[:data].merge!({
+          #  upload_files: files,
+          #  upload_cache: caches,
+          #  upload_remove: removals,
+          #  upload_options: preview_options
+          #})
         end
 
         def preview_options
@@ -51,8 +65,6 @@ module Voltron
           opts = previews.with_indifferent_access.try(:[], preview_name) || {}
           opts.merge!({
             preview_template: preview_markup,
-            param_name: input_name,
-            url: polymorphic_path(@model.class, action: :upload)
           })
           opts.merge!(options.delete(:options) || {})
           opts.map { |k,v| { k.to_s.camelize(:lower) => v } }.reduce(Hash.new, :merge).compact
@@ -77,6 +89,10 @@ module Voltron
           @preview ||= options.delete(:preview).to_s
         end
 
+        def accept
+          @accept ||= options.delete(:accept).to_s
+        end
+
         def has_preview_template?
           preview_name.present? && template.lookup_context.exists?(preview_name, 'voltron/upload/preview', true)
         end
@@ -87,12 +103,12 @@ module Voltron
           preview.present?
         end
 
-        def add_preview_class
-          options[:class] ||= ''
-          classes = options[:class].split(/\s+/)
-          classes << "dz-layout-#{preview_name}"
-          options[:class] = classes.join(' ')
-        end
+        #def add_preview_class
+        #  options[:class] ||= ''
+        #  classes = options[:class].split(/\s+/)
+        #  classes << "dz-layout-#{preview_name}"
+        #  options[:class] = classes.join(' ')
+        #end
 
         def input_name
           ActionView::Helpers::Tags::Base.new(ActiveModel::Naming.param_key(@model), @method, nil).send(:tag_name) + (multiple? ? '[]' : '')
@@ -119,10 +135,10 @@ module Voltron
 
         def caches
           if multiple?
-            cache = JSON.parse(@model.send("#{@method}_cache")) rescue []
+            cache = @model.send("cache_#{@method}") rescue []
             Array.wrap(cache)
           else
-            Array.wrap(@model.send("#{@method}_cache"))
+            Array.wrap(@model.send("cache_#{@method}"))
           end
         end
 

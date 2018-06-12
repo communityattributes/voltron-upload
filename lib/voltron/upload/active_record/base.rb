@@ -11,13 +11,13 @@ module Voltron
 
           column = args.first.to_sym
 
-          attr_accessor "#{column}_cache"
+          attr_accessor "cache_#{column}"
 
           before_validation do
             uploader = self.class.uploaders[column]
 
             begin
-              cache_id = send("#{column}_cache")
+              cache_id = send("cache_#{column}")
               send(column).retrieve_from_cache!(cache_id) if cache_id.present?
             rescue ::CarrierWave::InvalidParameter => e
               # Invalid cache id, we don't need to do anything but skip it
@@ -30,11 +30,11 @@ module Voltron
 
           column = args.first.to_sym
 
-          attr_accessor "#{column}_cache"
+          attr_accessor "cache_#{column}"
 
           before_validation do
             uploader = self.class.uploaders[column]
-            cache_ids = (JSON.parse(send("#{column}_cache")) rescue []) || []
+            cache_ids = (send("cache_#{column}") rescue []) || []
 
             # Store the existing files
             files = send(column)

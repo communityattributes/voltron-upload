@@ -40,7 +40,7 @@ module Voltron
       end
 
       def upload_params
-        params.require(uploader.resource_name).permit(uploader.permitted_params)
+        request.parameters[uploader.resource_name].slice(*uploader.permitted_params)
       end
 
     end

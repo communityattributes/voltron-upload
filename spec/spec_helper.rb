@@ -178,7 +178,7 @@ def upload(name, multiple, *files)
   ids = []
 
   files.each do |file|
-    post :upload, params: { user: { name => multiple ? [file] : file } }
+    post :upload, params: { user: { name => multiple ? [{ '0' => file }] : file } }
     ids << upload_ids.first
   end
 

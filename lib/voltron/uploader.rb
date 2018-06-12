@@ -14,10 +14,12 @@ module Voltron
 
     # List of permitted parameters needed for upload action
     def permitted_params
-      columns.map { |name, multiple| multiple ? { name => [] } : name }
+      columns.keys.map(&:to_sym)
+      #.map { |name, multiple| multiple ? { name => [] } : name }
     end
 
     def process!(params)
+      params = params.map { |column, value| { column => multiple?(column) && value.is_a?(Array) ? value.map(&:values).flatten : value } }.reduce(Hash.new, :merge)
       model = resource.new(params)
 
       # Test the validity, get the errors if any
@@ -44,7 +46,12 @@ module Voltron
     def columns
       @instance ||= resource.new
       uploaders = resource.uploaders.keys.map(&:to_s)
-      resource.uploaders.map { |k,v| { k.to_s => @instance.respond_to?("#{k}_urls") } }.reduce(Hash.new, :merge)
+      resource.uploaders.map { |k,v| { k.to_s => multiple?(k) } }.reduce(Hash.new, :merge)
+    end
+
+    def multiple?(column)
+      @instance ||= resource.new
+      @instance.respond_to?("#{column}_urls")
     end
 
   end
