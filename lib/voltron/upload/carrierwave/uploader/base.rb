@@ -56,7 +56,9 @@ module Voltron
             # as it will be part of the generated id
             def apply_timestamp(*args)
               @offset ||= rand(1..1000)
-              FileUtils.touch file.path, mtime: Time.now + @offset.seconds
+              if File.exist?(file.path)
+                FileUtils.touch file.path, mtime: Time.now + @offset.seconds
+              end
             end
 
         end
