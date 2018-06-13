@@ -61,7 +61,7 @@ describe UsersController, type: :controller do
     FileUtils.rm(user_avatar.avatar.full_store_path)
     FileUtils.rm(Rails.root.join(File.expand_path('../../railsapp/public', __FILE__), user_avatar.avatar.cache_path))
 
-    expect(user_avatar.avatar.id).to eq(user_avatar.avatar.file.original_filename)
+    expect(user_avatar.avatar.id).to eq(user_avatar.avatar.file.filename)
   end
 
   it 'will respond with an error message if the upload validation failed' do

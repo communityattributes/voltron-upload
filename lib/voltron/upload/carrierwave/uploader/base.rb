@@ -15,7 +15,7 @@ module Voltron
               {
                 id: id,
                 url: url,
-                name: file.original_filename,
+                name: file.filename,
                 size: file.size,
                 type: file.content_type
               }
@@ -26,11 +26,11 @@ module Voltron
 
           def id
             if stored?
-              [File.mtime(full_store_path).to_i, file.original_filename].join('/')
+              [File.mtime(full_store_path).to_i, file.filename].join('/')
             elsif cached? && File.exists?(Rails.root.join('public', cache_path))
-              [cached?, file.original_filename].join('/')
+              [cached?, file.filename].join('/')
             else
-              file.original_filename
+              file.filename
             end
           end
 
