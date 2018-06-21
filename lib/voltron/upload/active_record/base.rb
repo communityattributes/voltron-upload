@@ -16,9 +16,11 @@ module Voltron
           before_validation do
             uploader = self.class.uploaders[column]
 
+            # Catches instances where a user submitted the form without actually uploading anything
+            send(column).retrieve_from_store!(self.attributes[column.to_s]) if !send(column).present? && self.attributes[column.to_s].present?
+
             begin
               cache_id = send("cache_#{column}")
-              reload if !new_record? && !send(column).present?
               send(column).retrieve_from_cache!(cache_id) if cache_id.present?
             rescue ::CarrierWave::InvalidParameter => e
               # Invalid cache id, we don't need to do anything but skip it
