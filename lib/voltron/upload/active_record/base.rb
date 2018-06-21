@@ -18,7 +18,7 @@ module Voltron
 
             begin
               cache_id = send("cache_#{column}")
-              reload unless send(column).present?
+              reload if !new_record? && !send(column).present?
               send(column).retrieve_from_cache!(cache_id) if cache_id.present?
             rescue ::CarrierWave::InvalidParameter => e
               # Invalid cache id, we don't need to do anything but skip it
